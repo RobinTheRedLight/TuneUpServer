@@ -26,8 +26,13 @@ async function run() {
 
         app.post('/users', async (req, res) => {
             const allUsers = req.body;
-            const result = await userCollection.insertOne(allUsers);
-            res.send(result);
+            const email = allUsers.userEmail;
+            const query = { userEmail: email }
+            const user = await userCollection.findOne(query);
+            if (!user) {
+                const result = await userCollection.insertOne(allUsers);
+                res.send(result);
+            }
         });
 
         app.get('/users', async (req, res) => {
@@ -38,14 +43,20 @@ async function run() {
 
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
-            const query = { email }
+            const query = { userEmail: email }
             const user = await userCollection.findOne(query);
             res.send({ isAdmin: user?.userType === 'Admin' });
         });
 
-        app.get('/users/:email', async (req, res) => {
+        app.get('/users/all', async (req, res) => {
+            const query = {};
+            const options = await userCollection.find(query).toArray();
+            res.send(options);
+        })
+
+        app.get('/users/all/:email', async (req, res) => {
             const email = req.params.email;
-            const query = { email }
+            const query = { userEmail: email }
             const user = await userCollection.findOne(query);
             res.send({ isSeller: user?.userType === 'Seller' });
         });
