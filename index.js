@@ -19,6 +19,7 @@ async function run() {
         const userCollection = client.db('TuneUp').collection('users');
         const productsCollection = client.db('TuneUp').collection('products');
 
+
         app.get('/categories', async (req, res) => {
             const query = {};
             const options = await categoriesCollection.find(query).toArray();
@@ -40,6 +41,18 @@ async function run() {
             const result = await productsCollection.insertOne(products);
             res.send(result);
         });
+
+        app.get('/products', async (req, res) => {
+            const query = {};
+            const options = await productsCollection.find(query).toArray();
+            res.send(options);
+        })
+        app.get('/products/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const options = await productsCollection.find(query).toArray();
+            res.send(options);
+        })
 
         app.get('/users', async (req, res) => {
             const query = {};
