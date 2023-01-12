@@ -26,6 +26,13 @@ async function run() {
             res.send(options);
         })
 
+        app.get('/categories/:name', async (req, res) => {
+            const name = req.params.name;
+            const query = { category: name };
+            const options = await productsCollection.find(query).toArray();
+            res.send(options);
+        })
+
         app.post('/users', async (req, res) => {
             const allUsers = req.body;
             const email = allUsers.userEmail;
