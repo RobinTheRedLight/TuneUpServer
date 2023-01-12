@@ -17,6 +17,7 @@ async function run() {
     try {
         const categoriesCollection = client.db('TuneUp').collection('categories');
         const userCollection = client.db('TuneUp').collection('users');
+        const productsCollection = client.db('TuneUp').collection('products');
 
         app.get('/categories', async (req, res) => {
             const query = {};
@@ -27,12 +28,17 @@ async function run() {
         app.post('/users', async (req, res) => {
             const allUsers = req.body;
             const email = allUsers.userEmail;
-            const query = { userEmail: email }
+            const query = { userEmail: email };
             const user = await userCollection.findOne(query);
             if (!user) {
                 const result = await userCollection.insertOne(allUsers);
                 res.send(result);
             }
+        });
+        app.post('/products', async (req, res) => {
+            const products = req.body;
+            const result = await productsCollection.insertOne(products);
+            res.send(result);
         });
 
         app.get('/users', async (req, res) => {
