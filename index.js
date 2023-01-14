@@ -19,7 +19,6 @@ async function run() {
         const userCollection = client.db('TuneUp').collection('users');
         const productsCollection = client.db('TuneUp').collection('products');
 
-
         app.get('/categories', async (req, res) => {
             const query = {};
             const options = await categoriesCollection.find(query).toArray();
@@ -47,6 +46,22 @@ async function run() {
             const products = req.body;
             const result = await productsCollection.insertOne(products);
             res.send(result);
+        });
+        app.put('/adData/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const ObjectId = require('mongodb').ObjectId
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+
+            const updatedDoc = {
+                $set: {
+                    status: 'advertised'
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+
         });
 
         app.get('/products', async (req, res) => {
