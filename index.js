@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -18,6 +18,7 @@ async function run() {
         const categoriesCollection = client.db('TuneUp').collection('categories');
         const userCollection = client.db('TuneUp').collection('users');
         const productsCollection = client.db('TuneUp').collection('products');
+        const adDataCollection = client.db('TuneUp').collection('adData');
 
         app.get('/categories', async (req, res) => {
             const query = {};
@@ -47,6 +48,21 @@ async function run() {
             const result = await productsCollection.insertOne(products);
             res.send(result);
         });
+        app.post('/adData', async (req, res) => {
+            const adData = req.body;
+            const ID = adData.adID
+            const query = { adID: ID };
+            const product = await adDataCollection.findOne(query);
+            if (!product) {
+                const result = await adDataCollection.insertOne(adData);
+                res.send(result)
+            }
+        });
+        app.get('/adData', async (req, res) => {
+            const query = {};
+            const options = await adDataCollection.find(query).toArray();
+            res.send(options);
+        })
         app.put('/adData/:id', async (req, res) => {
 
             const id = req.params.id;
@@ -100,6 +116,14 @@ async function run() {
             const query = { userEmail: email }
             const user = await userCollection.findOne(query);
             res.send({ isSeller: user?.userType === 'Seller' });
+        });
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query1 = { _id: ObjectId(id) };
+            const query2 = { adID: id };
+            const result1 = await productsCollection.deleteOne(query1);
+            const result2 = await adDataCollection.deleteOne(query2);
+            res.send(result1);
         });
     }
     finally {
